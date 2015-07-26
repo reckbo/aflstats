@@ -17,6 +17,10 @@ done
 # clear output directory
 rm -rf $outdir/*.csv || true 
 
+# make staging area
+staging=$(mktemp -d)
+echo "Made staging directory: $staging"
+
 # for each html
 echo "$years"
 for year in $years; do
@@ -93,11 +97,11 @@ for year in $years; do
         rm $ftmp
     done
 
-    # Move the year's match csv's to output directory
+    # Move the year's match csv's to staging
     popd >/dev/null
     mkdir -p $outdir
-    ls $tmp/*.csv | xargs -n 1 sed -n 1p > $outdir/$matchescsv
-    ls $tmp/*.csv | xargs -n 1 sed 1d > $outdir/$teammatchescsv
+    ls $tmp/*.csv | xargs -n 1 sed -n 1p > $staging/$matchescsv
+    ls $tmp/*.csv | xargs -n 1 sed 1d > $staging/$teammatchescsv
     $DEBUG || rm -rf $tmp
     echo "Made '$outdir/$matchescsv'"
     echo "Made '$outdir/$teammatchescsv'"
@@ -105,7 +109,7 @@ done
 
 # Merge each match's 2 player rows into one csv
 echo "matchid${delim}team${delim}score_progression${delim}score" > $mpcsv
-cat $outdir/*-matches-team.csv  |\
+cat $staging/*-matches-team.csv  |\
     sed "s/[[:space:]]*${delim}/${delim}/g" |\
     sed "s/${delim}[[:space:]]*/${delim}/g" \
     >> $mpcsv
@@ -113,7 +117,7 @@ cat $outdir/*-matches-team.csv  |\
 # Merge each match csv's match info row into one csv, and
 # make new columns: venue, attendance, winning team, won by
 echo "matchid${delim}date${delim}attendance${delim}venue${delim}winner${delim}won_by" > $mcsv
-cat $outdir/*-matches.csv | \
+cat $staging/*-matches.csv | \
     sed "s/Att:/${delim}/" | \
     sed "s/Venue: /${delim}/" | \
     sed "s/ won by /${delim}/" | \
@@ -128,6 +132,16 @@ cat $outdir/*-matches.csv | \
 # convert delimter to comma
 sed -i '' "s/${delim}/,/g"  $mcsv
 sed -i '' "s/${delim}/,/g"  $mpcsv
+
+name2sname() {
+    sed 1d teams.csv | while IFS=, read sname name; do
+        sed -i '' "s/${name}/${sname}/g" $1
+    done
+}
+name2sname $mcsv
+name2sname $mpcsv
+
+$DEBUG || rm -rf "$staging"
 
 echo "Made '$mcsv'"
 echo "Made '$mpcsv'"
