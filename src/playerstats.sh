@@ -34,7 +34,10 @@ kangaroos \
 richmond \
 stkilda \
 westcoast \
-bullldogs"
+bullldogs \
+brisbanel"
+
+teams="brisbanel"
 
 years=$(seq 1990 2015)
 
