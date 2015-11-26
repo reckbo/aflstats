@@ -16,3 +16,5 @@ The Bash scripts require
 The scripts save the html pages to `out-html`, and save their csv files to
 `out-matchstats` and `out-playerstats`.  You can see the results in `data/`.
 
+# Todo
+* Add 'extra_time' column to matches.csv

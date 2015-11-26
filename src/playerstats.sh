@@ -34,9 +34,13 @@ kangaroos \
 richmond \
 stkilda \
 westcoast \
-bulldogs"
+bullldogs"
 
 years=$(seq 1990 2015)
+
+if [ "${1-}" ]; then
+    years=$@
+fi
 
 # Output
 dirHtml=out-html
