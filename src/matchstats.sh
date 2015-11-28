@@ -29,7 +29,7 @@ split() {
 }
 
 name2sname() {
-    sed 1d teamnames.csv | while IFS=, read sname name; do
+    sed 1d "$SCRIPTDIR"/teamnames.csv | while IFS=, read sname name; do
         sed -i '' "s/${name}/${sname}/g" $1
     done
 }
@@ -37,8 +37,6 @@ name2sname() {
 # Output
 dirHtml=$SCRIPTDIR/out-html
 dirOut=$SCRIPTDIR/out-matchstats
-csvMatches=$dirOut/matches.csv
-csvTeamMatches=$dirOut/team-matches.csv
 
 # Control info
 delim="|"
@@ -51,10 +49,7 @@ for arg in $@; do
     [[ "$arg" != "-h" ]] || { usage; exit 0; }
     years="$years $arg"
 done
-[ -n "${years-}" ] || years=$(ls $dirHtml/*.html | xargs basename | cut -d. -f1)
-
-# clear output directory
-rm -rf $dirOut/*.csv || true 
+[ -n "${years-}" ] || years=$(seq 1990 2015)
 
 # make temporary directory
 dirTmp=$(mktemp -d)
@@ -68,8 +63,8 @@ for year in $years; do
     cd $year
 
     # csv names for each year
-    csvMatchesYear=matches.csv
-    csvTeamMatchesYear=team-matches.csv
+    csvMatchesYear=matches-${year}.csv
+    csvTeamMatchesYear=teammatches-${year}.csv
 
     # get html from website if missing
     html=$(readlink -m "$dirHtml/$year.html")
@@ -143,46 +138,67 @@ for year in $years; do
     done
 
     echo "Make $csvMatchesYear and $csvTeamMatchesYear from the match csvs"
-    ls matches/*.csv | xargs -n 1 sed -n 1p > $csvMatchesYear
-    ls matches/*.csv | xargs -n 1 sed 1d > $csvTeamMatchesYear
-    echo "Made '$dirTmp/$year/$csvMatchesYear'"
-    echo "Made '$dirTmp/$year/$csvTeamMatchesYear'"
-    
+    ls matches/*.csv | xargs -n 1 sed -n 1p > matches-tmp.csv
+    ls matches/*.csv | xargs -n 1 sed 1d > teammatches-tmp.csv
+
+    echo "matchid${delim}team${delim}score_progression${delim}score" > $csvTeamMatchesYear
+    cat teammatches-tmp.csv |\
+        sed "s/[[:space:]]*${delim}/${delim}/g" |\
+        sed "s/${delim}[[:space:]]*/${delim}/g" \
+        >> $csvTeamMatchesYear
+
+    echo " Split column into new fields"
+    echo "matchid${delim}day${delim}date${delim}time${delim}atime${delim}attendance${delim}venue${delim}winner${delim}won_by,extra_time" > $csvMatchesYear
+    cat matches-tmp.csv | \
+        sed "s/Att:/${delim}/" | \
+        sed "s/Venue: /${delim}/" | \
+        sed "s/ won by /${delim}/" | \
+        sed 's/ pts//' |\
+        sed 's/ pt//' |\
+        sed "s/Match drawn/NA${delim}0/" |\
+        sed "s/Venue: /${delim}/" |\
+        sed "s/[[:space:]]*${delim}/${delim}/g" |\
+        sed "s/${delim}[[:space:]]*/${delim}/g" |\
+        sed "s/$/${delim}0/" |\
+        sed "s/[[:space:]]*(After extra time).*$/${delim}1/" |\
+        sed "s/PM${delim}/PM${delim}${delim}/" | sed "s/AM /AM${delim}${delim}/" |\
+        sed "s/ (/${delim}/" | sed "s/M)/M/" |\
+        sed "s/$year /${year}$delim/" |\
+        sed "s|-Mar-|/03/|" |\
+        sed "s|-Apr-|/04/|" |\
+        sed "s|-May-|/05/|" |\
+        sed "s|-Jun-|/06/|" |\
+        sed "s|-Jul-|/07/|" |\
+        sed "s|-Aug-|/08/|" |\
+        sed "s|-Sep-|/09/|" |\
+        sed "s|-Oct-|/09/|" |\
+        sed "s|-Nov-|/10/|" |\
+        sed "s/Mon /Mon$delim/" |\
+        sed "s/Tue /Tue$delim/" |\
+        sed "s/Wed /Wed$delim/" |\
+        sed "s/Thu /Thu$delim/" |\
+        sed "s/Fri /Fri$delim/" |\
+        sed "s/Sat /Sat$delim/" |\
+        sed "s/Sun /Sun$delim/" \
+        >> $csvMatchesYear
+        
+    echo "Convert delimiter to comma"
+    sed -i '' "s/${delim}/,/g"  $csvMatchesYear
+    sed -i '' "s/${delim}/,/g"  $csvTeamMatchesYear
+
+    echo "Convert long team names to short ones"
+    name2sname $csvMatchesYear
+    name2sname $csvTeamMatchesYear
+
+    cp $csvMatchesYear "$dirOut"
+    cp "$csvTeamMatchesYear" "$dirOut"
+
+    echo "Made '$dirOut/$csvMatchesYear'"
+    echo "Made '$dirOut/$csvTeamMatchesYear'"
+
     cd ..
 done
 
 popd
 
-echo "Combine the team match rows into one csv: $csvTeamMatches"
-echo "matchid${delim}team${delim}score_progression${delim}score" > $csvTeamMatches
-cat $dirTmp/????/team-matches.csv  |\
-    sed "s/[[:space:]]*${delim}/${delim}/g" |\
-    sed "s/${delim}[[:space:]]*/${delim}/g" \
-    >> $csvTeamMatches
-
-echo "Combine the match rows into one csv, and split column into 4 new fields: venue, attendance, winning team, won by"
-echo "matchid${delim}date${delim}attendance${delim}venue${delim}winner${delim}won_by" > $csvMatches
-cat $dirTmp/????/matches.csv | \
-    sed "s/Att:/${delim}/" | \
-    sed "s/Venue: /${delim}/" | \
-    sed "s/ won by /${delim}/" | \
-    sed 's/ pts//' |\
-    sed 's/ pt//' |\
-    sed "s/Match drawn/NA${delim}0/" |\
-    sed "s/Venue: /${delim}/" |\
-    sed "s/[[:space:]]*${delim}/${delim}/g" |\
-    sed "s/${delim}[[:space:]]*/${delim}/g" \
-    >> $csvMatches
-    
-echo "Convert delimiter to comma"
-sed -i '' "s/${delim}/,/g"  $csvMatches
-sed -i '' "s/${delim}/,/g"  $csvTeamMatches
-
-echo "Convert long team names to short ones"
-name2sname $csvMatches
-name2sname $csvTeamMatches
-
 $DEBUG || rm -rf "$dirTmp"
-
-echo "Made '$csvMatches'"
-echo "Made '$csvTeamMatches'"
