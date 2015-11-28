@@ -148,7 +148,7 @@ for year in $years; do
         >> $csvTeamMatchesYear
 
     echo " Split column into new fields"
-    echo "matchid${delim}day${delim}date${delim}time${delim}atime${delim}attendance${delim}venue${delim}winner${delim}won_by,extra_time" > $csvMatchesYear
+    echo "year${delim}matchid${delim}day${delim}date${delim}time${delim}atime${delim}attendance${delim}venue${delim}winner${delim}won_by,extra_time" > $csvMatchesYear
     cat matches-tmp.csv | \
         sed "s/Att:/${delim}/" | \
         sed "s/Venue: /${delim}/" | \
@@ -179,7 +179,8 @@ for year in $years; do
         sed "s/Thu /Thu$delim/" |\
         sed "s/Fri /Fri$delim/" |\
         sed "s/Sat /Sat$delim/" |\
-        sed "s/Sun /Sun$delim/" \
+        sed "s/Sun /Sun$delim/" |\
+        sed "s/^/${year}$delim/" \
         >> $csvMatchesYear
         
     echo "Convert delimiter to comma"
