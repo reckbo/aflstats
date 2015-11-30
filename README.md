@@ -10,11 +10,8 @@ The Bash scripts require
 # Run
 
     cd src
-    ./mathstats.sh
+    ./mathstats.sh [year1 year2 ... yearN]
     ./playerstats.sh
 
 The scripts save the html pages to `out-html`, and save their csv files to
 `out-matchstats` and `out-playerstats`.  You can see the results in `data/`.
-
-# Todo
-* Add 'extra_time' column to matches.csv

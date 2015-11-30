@@ -161,7 +161,7 @@ for year in $years; do
         sed "s/${delim}[[:space:]]*/${delim}/g" |\
         sed "s/$/${delim}0/" |\
         sed "s/[[:space:]]*(After extra time).*$/${delim}1/" |\
-        sed "s/PM${delim}/PM${delim}${delim}/" | sed "s/AM /AM${delim}${delim}/" |\
+        sed "s/PM${delim}/PM${delim}${delim}/" | sed "s/AM${delim}/AM${delim}${delim}/" |\
         sed "s/ (/${delim}/" | sed "s/M)/M/" |\
         sed "s/$year /${year}$delim/" |\
         sed "s|-Mar-|/03/|" |\
