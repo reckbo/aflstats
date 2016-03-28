@@ -1,1 +1,3 @@
-src/out-*/
+afltables/*.playerstats
+afltables/*.matches
+.redo
