@@ -7,6 +7,7 @@ dirOut <- paste0(commandArgs(TRUE)[3],"/")
 
 URL_TEMPLATE="http://afltables.com/afl/stats/teams/_team_/_year__gbg.html"
 URL = gsub("_year_", year, gsub("_team_", team, URL_TEMPLATE))
+cat(sprintf("URL: %s\n", URL))
 tables = readHTMLTable(URL)
 names(tables) <- rep(year, length(names(tables)))
 
@@ -34,13 +35,13 @@ GA=tables[22]  # Goal assist
 pctP=tables[23]# Percentage of game played
 SU=tables[24]  # Sub (On/Off)
 
-write.csv(file=paste0(dirOut,team,year,"_KI.csv"), x=KI, row.names=FALSE)
-write.csv(file=paste0(dirOut,team,year,"_MK.csv"), x=MK, row.names=FALSE)
-write.csv(file=paste0(dirOut,team,year,"_HB.csv"), x=HB, row.names=FALSE)
-write.csv(file=paste0(dirOut,team,year,"_FA.csv"), x=FA, row.names=FALSE)
-write.csv(file=paste0(dirOut,team,year,"_FF.csv"), x=FF, row.names=FALSE)
-write.csv(file=paste0(dirOut,team,year,"_TK.csv"), x=TK, row.names=FALSE)
-write.csv(file=paste0(dirOut,team,year,"_GL.csv"), x=GL, row.names=FALSE)
-write.csv(file=paste0(dirOut,team,year,"_HO.csv"), x=HO, row.names=FALSE)
-write.csv(file=paste0(dirOut,team,year,"_BH.csv"), x=BH, row.names=FALSE)
-write.csv(file=paste0(dirOut,team,year,"_pctP.csv"), x=pctP, row.names=FALSE)
+write.csv(file=paste0(dirOut,"KI.csv"), x=KI, row.names=FALSE)
+write.csv(file=paste0(dirOut,"MK.csv"), x=MK, row.names=FALSE)
+write.csv(file=paste0(dirOut,"HB.csv"), x=HB, row.names=FALSE)
+write.csv(file=paste0(dirOut,"FA.csv"), x=FA, row.names=FALSE)
+write.csv(file=paste0(dirOut,"FF.csv"), x=FF, row.names=FALSE)
+write.csv(file=paste0(dirOut,"TK.csv"), x=TK, row.names=FALSE)
+write.csv(file=paste0(dirOut,"GL.csv"), x=GL, row.names=FALSE)
+write.csv(file=paste0(dirOut,"HO.csv"), x=HO, row.names=FALSE)
+write.csv(file=paste0(dirOut,"BH.csv"), x=BH, row.names=FALSE)
+write.csv(file=paste0(dirOut,"pctP.csv"), x=pctP, row.names=FALSE)
