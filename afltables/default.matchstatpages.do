@@ -1,7 +1,9 @@
 #!/bin/bash -eu
 
+[ ! -d "$1" ]  || { echo "'$1' already exists."; exit 0; }
+
 year=${2##*/}
-html=matches/$year.matches.html
+html=$year/$year.matchsummaries.html
 redo-ifchange $html
 
 stathtmls=$(grep "Match stats" $html | grep -oE "[[:digit:]]+\.html")

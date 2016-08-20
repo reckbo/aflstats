@@ -58,7 +58,7 @@ year=:('.*-[[:alpha:]]+-([[:digit:]]+) ';1)&rxall@>
 venue=:('Venue: (.+)';1)&rxall@>
 att=: (". @: (-.&','))each@:(('Att:([[:digit:][:punct:]]+)[[:space:]]+Venue:';1)&rxall)@>
 NB.splitinfo=: (<;.1~ ('Att';'Venue')  1&(0})@:(+/)@:(E.every"0 _) <)@:>
-matchinfo=:(}:"1 ,. winner ,. opponent ,"0 1 (venue, att , year , date)@:{.@:({:"1) )
+matchinfo=:(}:"1 ,. winner ,. opponent ,"0 1 (venue, att , year , date, ('-' <@joinstring date , venue))@:{.@:({:"1) )
 
 yrounds=: 3 : ',/each (_2 matchinfo\ ])@:(getround ,. }.)@:(splitline every) each split2rounds filtertxt ''b'' fread ftxt  y'
 ymatches=: ;@:(;@yrounds each)

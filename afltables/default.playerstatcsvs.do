@@ -1,8 +1,6 @@
 #!/bin/bash -eu
 
-SCRIPT=$(readlink -m "$(type -p $0)")
-SCRIPTDIR=$(dirname "$SCRIPT")
-source "$SCRIPTDIR/scripts-pipeline/util.sh"
+source scripts-pipeline/util.sh
 
 year_team=${2##*/}
 IFS="-" read year team <<< $year_team
