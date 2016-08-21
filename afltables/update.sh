@@ -5,9 +5,9 @@ years=$@
 [ -n "$years" ] || years=$(date +%Y)
 
 for year in $years; do
-    redo $year/$year.matchsummaries.txt
-    redo $year/$year.matchstatpages
+    redo $year/$year.matches.txt
+    redo $year/$year.matchstats
     while read team; do
-        redo $year/$year-$team.playerstatcsvs
+        redo $year/$year-$team.players
     done < playerstatsteams.txt
 done

@@ -5,6 +5,7 @@ collingwood
 essendon
 fremantle
 geelong
+goldcoast
 gws
 hawthorn
 kangaroos
