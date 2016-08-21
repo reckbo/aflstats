@@ -8,35 +8,74 @@ nix-shell -p "haskellPackages.ghcWithPackages (pkgs: [pkgs.trifecta])" --command
 :db:       data.db
 :END:
 
-#+begin_src J :session jsesh :results silent
-load'csv matchstats.ijs'
-(ymatches 2009)writecsv'matches.csv'
-#+end_src
-
+#+name make-db
 #+begin_src sqlite :results silent
-drop table match;
-CREATE TABLE match(
-  round TEXT,
-  team TEXT,
-  progression TEXT,
-  score INTEGER,
-  winner TEXT,
-  opponent TEXT,
-  venue TEXT,
-  attendance INTEGER,
-  season INTEGER,
-  date TEXT
-);
-.mode csv
-.import matches.csv match
+  drop table match; drop table playerT; drop table playerTT; drop table player; drop table team;
+  CREATE TABLE match(
+    round TEXT, 
+    team TEXT, progression TEXT, score INTEGER, winner TEXT,
+    opponent TEXT, venue TEXT, attendance INTEGER, year INTEGER, date TEXT,
+    id TEXT NOT NULL
+  );
+  CREATE TABLE playerT(
+    year INTEGER, team TEXT, name TEXT,
+    round TEXT, KI INTEGER, MK INTEGER, HB INTEGER, FA INTEGER, FF INTEGER,
+    TK INTEGER, GL INTEGER, HO INTEGER, BH INTEGER, pctP INTEGER
+  );
+  CREATE TABLE player(
+    name TEXT,
+    matchid TEXT NOT NULL,
+    KI INTEGER, MK INTEGER, HB INTEGER, FA INTEGER, FF INTEGER, TK INTEGER,
+    GL INTEGER, HO INTEGER, BH INTEGER, pctP INTEGER,
+    FOREIGN KEY (matchid) REFERENCES match(id)
+  );
+  CREATE TABLE team(urlname TEXT NOT NULL, name TEXT NOT NULL);
+  .mode csv
+  -- populate team
+  .import players/playerteams.csv team
+  -- populate match
+  .import matches.csv match
+  -- populate playerT
+  .shell sed 1d players/players.csv > /tmp/t.csv
+  .headers on
+  .import /tmp/t.csv playerT
+  -- make player
+  CREATE TABLE playerTT as 
+    SELECT p.name,year,round,KI,MK,HB,FA,FF,TK,GL,HO,BH,pctP,t.name as teamname 
+      FROM playerT as p 
+      LEFT JOIN team as t 
+      ON p.team=t.urlname;
+
+  INSERT INTO player 
+    select name,match.id as matchid,KI,MK,HB,FA,FF,TK,GL,HO,BH,pctP 
+      from playerTT
+      left join match 
+        on match.year=playerTT.year
+        and match.round=playerTT.round
+        and match.team=playerTT.teamname;
+
 #+end_src
 
-#+begin_src sqlite 
-select max(cnt) from 
-   (select count(*) as cnt,date,venue from match group by venue,date) limit 5;
+#+begin_src sqlite  :results raw
+select name,match.id as matchid,playerTT.year as y,
+       playerTT.round as r,playerTT.teamname,MK,HB,FA,FF,TK,GL,HO,BH,pctP,
+       match.venue as v
+   from playerTT
+   left outer join match 
+     on (playerTT.year=match.year
+     and playerTT.round=match.round
+     and playerTT.teamname=match.team)
+   where matchid is NULL 
+   and r="1"
+   and y=2008 limit 5;
 #+end_src
 
 #+RESULTS:
-: 2
+
+#+begin_src sqlite
+select * from playerTT where year is NULL limit 5;
+#+end_src
+
+#+RESULTS:
 
 

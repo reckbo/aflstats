@@ -9,5 +9,5 @@ for year in $years; do
     redo $year/$year.matchstats
     while read team; do
         redo $year/$year-$team.players
-    done < playerstatsteams.txt
+    done < playerteams.txt
 done
