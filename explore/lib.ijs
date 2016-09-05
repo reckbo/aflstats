@@ -3,25 +3,6 @@ SCRIPTDIR=. getpath_j_ jpath loc''
 load SCRIPTDIR,'../afltables/paths.ijs plot'
 
 NB. -------------------------------------------
-NB. player stats
-
-STATS=: ;: 'KI MK HB FA FF TK GL HO BH pctP'
-statsfiles=: 4 : '<@statsfile"1  (<x) ,. (<y),. STATS' 
-stattbls=: (STATS&,:)@:(readcsv each)@:statsfiles
-rounds=: ( (-.&'R')each @: {: @: ('.'&splitstring)every) @: }: @: }. @: {.
-players=: ({."1)@:}. 
-normalizeTbls=: 3 : 0
-  StatNames=. {. y
-  Tbls=. {: y
-  Rounds=: rounds >{. Tbls
-  Players=: players >{. Tbls
-  NormTbl=. ,/ Players ,."_1 Rounds ,."2  (|:@:(}."1)/.~ {."1) ,/ > }.@:(}:"1) each Tbls
-  Hdr=. 'player';'round';STATS
-  NB.hdr=:('player';STATS,;:'year round team')
-  Hdr,NormTbl 
-)
-
-NB. -------------------------------------------
 NB. match event times
 
 NB.goallines=: #~ 'goal'&(+./@E.)&>
@@ -29,7 +10,7 @@ goallines=: #~ ('behind'&E. +./@:+. 'goal'&E.)&>
 goaltime=: a: {.@-.~ 1 3&{@:(deb each)@:('|'&cut every)
 toSeconds=:60 60&#.@:(".@}: every)@:(' '&splitstring)
 fgoaltimes=: toSeconds&> @: goaltime"0 @: goallines @: ('b'&fread)
-ygoaltimes=: (fgoaltimes each)@:;@:(mstatfiles each) NB. ygoaltimes 2009 2010
+ygoaltimes=: (fgoaltimes each)@:;@:(xmstatfiles each) NB. ygoaltimes 2009 2010
 
 NB.plot ^. h=.(+/\.) (i.1213) (% +/)@:histogram dt=.intervals ygoaltimes 2015
 NB.lambda=. 50%4*1200

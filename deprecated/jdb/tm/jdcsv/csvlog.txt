@@ -1,0 +1,18 @@
+
+!load jdcsv
+snk: /users/ryan/j64-803-user/temp/jd/bar/tm/jdcsv
+src: ./teammatches.csv
+start: 2015 11 29 21 50 43
+1 matchid byte 24
+2 team byte 3
+3 score_progression byte 22
+4 score int
+options , LF NO \ 1
+colsep: 44 ,
+rowsep: 10 LF
+remove extra c_..._jdcsv_ rows: 90360
+callbackc count: 0
+callbackv count: 0
+elapsed: 0
+rows/Sec: 57652
+rows: 9640
